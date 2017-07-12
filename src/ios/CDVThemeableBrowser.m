@@ -109,17 +109,17 @@
 
 - (BOOL) isSystemUrl:(NSURL*)url
 {
-  NSDictionary *systemUrls = @{
-    @"itunes.apple.com": @YES,
-    @"search.itunes.apple.com": @YES,
-    @"appsto.re": @YES
-  };
+    NSDictionary *systemUrls = @{
+        @"itunes.apple.com": @YES,
+        @"search.itunes.apple.com": @YES,
+        @"appsto.re": @YES
+    };
 
-  if (systemUrls[[url host]]) {
-    return YES;
-  }
+    if (systemUrls[[url host]]) {
+        return YES;
+    }
 
-  return NO;
+    return NO;
 }
 
 - (void)open:(CDVInvokedUrlCommand*)command
@@ -331,7 +331,14 @@
     // Run later to avoid the "took a long time" log message.
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.themeableBrowserViewController != nil) {
-            [self.viewController presentViewController:nav animated:animated completion:nil];
+            CGRect frame = [[UIScreen mainScreen] bounds];
+            UIWindow *tmpWindow = [[UIWindow alloc] initWithFrame:frame];
+            UIViewController *tmpController = [[UIViewController alloc] init];
+            [tmpWindow setRootViewController:tmpController];
+            [tmpWindow setWindowLevel:UIWindowLevelNormal];
+
+            [tmpWindow makeKeyAndVisible];
+            [tmpController presentViewController:nav animated:YES completion:nil];
         }
     });
 }
@@ -1603,6 +1610,12 @@
 #pragma mark CDVScreenOrientationDelegate
 
 @implementation CDVThemeableBrowserNavigationController : UINavigationController
+
+(void) dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion {
+    if ( self.presentedViewController) {
+        [super dismissViewControllerAnimated:flag completion:completion];
+    }
+}
 
 - (BOOL)shouldAutorotate
 {
